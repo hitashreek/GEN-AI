@@ -7,9 +7,9 @@ import { Observable } from 'rxjs';
 })
 export class ChatService {
   // Change this for deployed Vercel endpoint
-  private apiUrl = 'http://localhost:3000/api/chat';
   // TODO: Remove comment while runing on machine
-  // private apiUrl = 'https://genai-js-backend.vercel.app/api/chat';
+  // private apiUrl = 'http://localhost:3000/api/chat';
+  private apiUrl = 'https://02persona-chat-b.vercel.app/api/chat';
 
   constructor(private http: HttpClient) { }
 
