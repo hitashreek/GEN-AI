@@ -1,5 +1,6 @@
 {
-  "buildCommand": "npx ng build",
+  "version": 2,
+  "public": true,
   "outputDirectory": "dist/02persona-chat-f/browser",
-  "routes": [{ "src": "/(.*)", "dest": "/index.html" }]
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
