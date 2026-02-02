@@ -9,10 +9,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: [
-      // "http://localhost:4200", TODO: Remove comment while runing on machine
-      "https://genai-js-persona-chat.vercel.app",
-    ], // frontend URL
+    origin: ["http://localhost:4200", "https://02persona-chat-f.vercel.app/"], // frontend URL
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type"],
   }),
