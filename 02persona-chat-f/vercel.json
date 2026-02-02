@@ -1,0 +1,6 @@
+{
+  "framework": null,
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/02persona-chat-f",
+  "routes": [{ "src": "/(.*)", "dest": "/index.html" }]
+}
