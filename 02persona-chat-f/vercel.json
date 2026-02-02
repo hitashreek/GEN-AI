@@ -1,10 +1,5 @@
 {
   "buildCommand": "npx ng build",
   "outputDirectory": "dist/02persona-chat-f/browser",
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ]
+  "routes": [{ "src": "/(.*)", "dest": "/index.html" }]
 }
