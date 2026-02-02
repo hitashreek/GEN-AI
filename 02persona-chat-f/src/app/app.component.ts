@@ -1,13 +1,22 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { ChatTemplateComponent } from './component/chat-template/chat-template.component';
+import { ChatService } from './chat.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [CommonModule, ChatTemplateComponent],
+  providers: [ChatService],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = '02persona-chat-f';
+  title = '02-persona-chat';
+
+  currentComponent: 'hitesh' | 'piyush' = 'hitesh';
+
+  showComponent(comp: 'hitesh' | 'piyush') {
+    this.currentComponent = comp;
+  }
 }
