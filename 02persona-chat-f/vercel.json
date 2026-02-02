@@ -1,6 +1,6 @@
 {
   "framework": null,
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist/02persona-chat-f",
+  "buildCommand": "npx ng build",
+  "outputDirectory": "dist/02persona-chat-f/browser",
   "routes": [{ "src": "/(.*)", "dest": "/index.html" }]
 }
