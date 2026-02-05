@@ -16,7 +16,14 @@ export class RagService {
   }
 
   chat(query: string) {
-    return this.http.post<{ answer: string }>(`${this.baseUrl}/chatHyDE`, { query });
+    return this.http.post<{
+      answer: string;
+      files: { fileName: string; hasText: boolean }[];
+    }>(`${this.baseUrl}/chatHyDE`, {
+      query,
+      userId: 'demo-user-123'
+    });
   }
+
 }
 

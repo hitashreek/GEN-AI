@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterOutlet } from '@angular/router';
 import { RagService } from '../service/rag.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [FormsModule, CommonModule],
+  providers: [RagService],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -32,7 +32,7 @@ export class AppComponent {
     if (this.textContent) formData.append('textContent', this.textContent);
 
     this.ragService.indexDocuments(formData).subscribe({
-      next: (res: any) => console.log('Indexing done', res),
+      next: (res: any) => console.log('', res),
       error: (err: any) => console.error(err)
     });
   }
@@ -43,10 +43,20 @@ export class AppComponent {
     this.chatMessages.push({ role: 'user', content: query });
 
     this.ragService.chat(query).subscribe({
-      next: (res: any) => this.chatMessages.push({ role: 'system', content: res.answer }),
+      next: (res: any) => {
+        console.log('Files used:', res.files);
+
+        res.files.forEach((f: any) => {
+          console.log(`File: ${f.fileName}, Has text: ${f.hasText}`);
+        });
+
+        // Push the answer to chat messages
+        this.chatMessages.push({ role: 'system', content: res.answer });
+      },
       error: (err: any) => console.error(err)
     });
   }
+
 }
 
 interface ChatMessage {
