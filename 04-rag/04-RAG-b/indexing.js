@@ -4,7 +4,7 @@ import { OpenAIEmbeddings } from "@langchain/openai";
 import { QdrantVectorStore } from "@langchain/qdrant";
 
 async function init() {
-  const pdfFilePath = "./rblbag.pdf";
+  const pdfFilePath = "./SolarSquare.pdf";
   const loader = new PDFLoader(pdfFilePath);
 
   // Page by page load the PDF file

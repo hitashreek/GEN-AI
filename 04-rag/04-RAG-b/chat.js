@@ -6,7 +6,7 @@ import OpenAI from "openai";
 const client = new OpenAI();
 
 async function chat() {
-  const userQuery = "Which bag will I receive?";
+  const userQuery = "Will installing solar panels affect my roof warranty?";
 
   // Ready the client OpenAI Embedding Model
   const embeddings = new OpenAIEmbeddings({
