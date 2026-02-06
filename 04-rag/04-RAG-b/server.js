@@ -12,8 +12,19 @@ const app = express();
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-app.use(cors());
+// CORS with explicit options
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
+
 app.use(express.json());
+
+// Explicitly handle OPTIONS requests
+app.options("*", cors());
 
 // PDF / TXT Indexing endpoint
 app.post("/api/indexing", upload.single("pdf"), async (req, res) => {
@@ -53,9 +64,11 @@ app.get("/api/documents/:userId", async (req, res) => {
 
 app.post("/api/chatHyDE", async (req, res) => {
   try {
+    console.log("ChatHyDE request body:", req.body);
     const result = await runChat(req.body.query, req.body.userId);
     res.json(result);
   } catch (err) {
+    console.error("ChatHyDE error:", err);
     res.status(500).json({ error: err.message });
   }
 });
