@@ -6,9 +6,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class RagService {
-  private baseUrl = 'http://localhost:3000/api'; // <--- include /api
-  // private baseUrl = 'https://ragone.vercel.app/api'; // <--- include /api
-
+  // private baseUrl = 'http://localhost:3000/api'; 
+  private baseUrl = 'https://04-rag-b.vercel.app/api';
   constructor(private http: HttpClient) { }
 
   indexDocuments(payload: FormData) {

@@ -1,0 +1,6 @@
+{
+  "version": 2,
+  "public": true,
+  "outputDirectory": "dist/04-rag-f/browser",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}

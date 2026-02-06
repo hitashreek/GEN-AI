@@ -35,7 +35,7 @@ app.post("/api/indexing", upload.single("pdf"), async (req, res) => {
       await runIndexing(userId, null, null, textContent);
     }
 
-    res.json({ message: "Indexing complete!" });
+    res.json({ message: "Indexing complete!", status: 200 });
   } catch (err) {
     console.error("Indexing error:", err);
     res.status(500).json({ error: err.message });

@@ -12,6 +12,7 @@ import { RagService } from '../service/rag.service';
 })
 export class AppComponent implements OnInit, AfterViewChecked {
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
+  @ViewChild('fileInput') input!: ElementRef<HTMLInputElement>;
 
   textContent: string = '';
   files: { pdf?: File } = {};
@@ -24,7 +25,6 @@ export class AppComponent implements OnInit, AfterViewChecked {
   userId: string;
   userDocuments: any[] = []; //  Store user's documents
   isLoadingDocuments: boolean = false;
-  input!: HTMLInputElement;
 
   constructor(private ragService: RagService) {
     this.userId = this.getOrCreateUserId();
@@ -79,15 +79,10 @@ export class AppComponent implements OnInit, AfterViewChecked {
     return !!(this.files.pdf || this.textContent.trim());
   }
 
-  onFileChange(event: any, type: 'pdf') {
-    this.input = event.target as HTMLInputElement;
-    const file = this.input.files?.[0];
-
-    if (file) {
-      this.files[type] = file;
-    }
+  onFileChange(event: Event, type: 'pdf') {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) this.files[type] = file;
   }
-
 
   submit() {
     const formData = new FormData();
@@ -100,19 +95,21 @@ export class AppComponent implements OnInit, AfterViewChecked {
 
     this.ragService.indexDocuments(formData).subscribe({
       next: (res: any) => {
-        this.uploadMessage = {
-          type: 'success',
-          text: 'Document uploaded successfully!'
-        };
-        this.input.value = '';
-        this.isUploading = false;
-        this.textContent = '';
-        this.files = {};
+        if (res.status == 200) {
+          this.uploadMessage = {
+            type: 'success',
+            text: 'Document uploaded successfully!'
+          };
+          if (this.input?.nativeElement) this.input.nativeElement.value = '';
+          this.isUploading = false;
+          this.textContent = '';
+          this.files = {};
 
-        //  Reload documents after upload
-        this.loadUserDocuments();
+          //  Reload documents after upload
+          this.loadUserDocuments();
 
-        setTimeout(() => this.uploadMessage = null, 5000);
+          setTimeout(() => this.uploadMessage = null, 5000);
+        }
       },
       error: (err: any) => {
         console.error(err);

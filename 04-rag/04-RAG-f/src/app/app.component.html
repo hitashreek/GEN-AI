@@ -1,7 +1,7 @@
 <div class="flex flex-col lg:flex-row h-screen bg-gray-50">
   <!-- Left Panel -->
   <div
-    class="w-full lg:w-1/3 p-4 md:p-6 border-b lg:border-b-0 lg:border-r border-gray-200 flex flex-col gap-3 md:gap-4 h-[50vh] lg:h-full bg-white">
+    class="w-full lg:w-1/3 p-4 md:p-6 border-b lg:border-b-0 lg:border-r border-gray-200 flex flex-col gap-3 md:gap-4 h-[60vh] md:h-full bg-white">
 
     <!-- Scrollable Content Area -->
     <div class="flex-1 overflow-y-auto flex flex-col gap-3 md:gap-4">
@@ -10,14 +10,14 @@
         <strong class="text-blue-900">Your ID: </strong> <span class="break-all text-blue-700">{{ userId }}</span>
       </div>
 
-      <h2 class="text-lg md:text-xl font-bold text-gray-900">Upload / Paste Documents</h2>
+      <h3 class="text-md md:text-xl font-bold text-gray-900">Upload / Paste Documents</h3>
 
       <textarea [(ngModel)]="textContent" placeholder="Paste text here..."
-        class="border border-gray-300 p-3 rounded-lg text-sm md:text-base min-h-[100px] sm:min-h-[120px] md:min-h-[160px] resize-y focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+        class="border border-gray-300 outline-none mx-1 p-2 rounded-lg text-sm md:text-base min-h-[60px] sm:min-h-[60px] md:min-h-[80px] lg:min-h-[100px] resize-y focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
 
       <div class="flex flex-col gap-2">
-        <label class="text-sm font-semibold text-gray-700">PDF Document:</label>
-        <input type="file" (change)="onFileChange($event, 'pdf')" accept=".pdf"
+        <label class="text-base md:text-md font-semibold">PDF Document:</label>
+        <input type="file" #fileInput (change)="onFileChange($event, 'pdf')" accept=".pdf"
           class="border border-gray-300 p-2 rounded-lg text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
       </div>
 
@@ -46,7 +46,7 @@
 
     <!-- Fixed Documents Section at Bottom -->
     <div class="border-t border-gray-200 pt-3 md:pt-4 bg-white flex-shrink-0">
-      <h3 class="text-base md:text-lg font-semibold mb-2 text-gray-900">Your Documents</h3>
+      <h3 class="text-base md:text-md font-semibold mb-2">Your Documents</h3>
 
       <div *ngIf="isLoadingDocuments" class="text-gray-500 text-xs md:text-sm">
         Loading documents...
@@ -58,7 +58,7 @@
 
       <!-- Documents List with Scrollbar -->
       <div *ngIf="!isLoadingDocuments && userDocuments.length > 0"
-        class="flex flex-col gap-2 h-32 sm:h-40 md:h-48 lg:h-56 overflow-y-auto pr-2">
+        class="flex flex-col gap-2 h-32 sm:h-30 md:h-48 lg:h-56 overflow-y-auto pr-2">
         <div *ngFor="let doc of userDocuments; let i = index"
           class="border border-gray-200 rounded-lg p-2 md:p-3 bg-white hover:bg-gray-50 flex-shrink-0 transition-colors">
           <div class="flex items-center justify-between mb-1 md:mb-2">
@@ -110,8 +110,8 @@
   </div>
 
   <!-- Right Panel (Chat) - NotebookLM Style -->
-  <div class="w-full lg:w-2/3 p-4 md:p-6 flex flex-col h-[50vh] lg:h-full bg-white">
-    <h2 class="text-lg md:text-xl font-bold mb-3 text-gray-900">Chat</h2>
+  <div class="w-full lg:w-2/3 p-4 md:p-6 flex flex-col h-[40vh] lg:h-full bg-white">
+    <h2 class="text-md md:text-xl font-bold mb-3 text-gray-900">Chat</h2>
 
     <!-- Chat Messages Area -->
     <div #scrollContainer class="flex-1 overflow-y-auto mb-3 md:mb-4 flex flex-col">
@@ -128,7 +128,7 @@
 
         <!-- Message card (bottom notebook-style) -->
         <div class="p-3 break-words" [ngClass]="msg.role === 'user' 
-      ? 'self-end bg-blue-50 text-blue-900 px-6 py-4 rounded-3xl rounded-br-none shadow-sm max-w-[80%] my-2' 
+      ? 'self-end bg-blue-50 text-blue-900 px-6 py-2 md:py-4 rounded-3xl rounded-br-none shadow-sm max-w-[80%] my-2' 
       : 'self-start text-gray-800 px-4 py-3 rounded-2xl max-w-[90%] shadow'">
 
           <div [ngClass]="msg.role === 'user' ? 'text-md font-medium' : 'text-md'">
