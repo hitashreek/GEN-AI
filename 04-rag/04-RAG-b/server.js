@@ -12,22 +12,11 @@ const app = express();
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-// CORS with explicit options
-app.use(
-  cors({
-    origin: "*",
-    methods: ["GET", "POST", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  }),
-);
-
+app.use(cors());
 app.use(express.json());
 
-// Explicitly handle OPTIONS requests
-app.options("*", cors());
-
 // PDF / TXT Indexing endpoint
-app.post("/lib/indexing", upload.single("pdf"), async (req, res) => {
+app.post("/api/indexing", upload.single("pdf"), async (req, res) => {
   const userId = req.body.userId;
   const textContent = req.body.textContent;
 
@@ -53,7 +42,7 @@ app.post("/lib/indexing", upload.single("pdf"), async (req, res) => {
   }
 });
 
-app.get("/lib/documents/:userId", async (req, res) => {
+app.get("/api/documents/:userId", async (req, res) => {
   try {
     const documents = await getUserDocuments(req.params.userId);
     res.json({ documents });
@@ -62,7 +51,7 @@ app.get("/lib/documents/:userId", async (req, res) => {
   }
 });
 
-app.post("/lib/chatHyDE", async (req, res) => {
+app.post("/api/chatHyDE", async (req, res) => {
   try {
     console.log("ChatHyDE request body:", req.body);
     const result = await runChat(req.body.query, req.body.userId);
@@ -73,7 +62,7 @@ app.post("/lib/chatHyDE", async (req, res) => {
   }
 });
 
-app.delete("/lib/documents/:userId/:source", async (req, res) => {
+app.delete("/api/documents/:userId/:source", async (req, res) => {
   try {
     const result = await deleteUserDocument(
       req.params.userId,
@@ -86,7 +75,7 @@ app.delete("/lib/documents/:userId/:source", async (req, res) => {
 });
 
 // health check
-app.get("/lib/health", (_, res) => {
+app.get("/api/health", (_, res) => {
   res.json({ status: "ok" });
 });
 
