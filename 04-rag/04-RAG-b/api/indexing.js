@@ -41,6 +41,7 @@ export async function runIndexing(userId, fileBuffer, fileName, textContent) {
   } else if (textContent) {
     // Handle raw text content from textarea
     const source = `text-input${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
+
     docs = [
       new Document({
         pageContent: textContent,
@@ -58,7 +59,7 @@ export async function runIndexing(userId, fileBuffer, fileName, textContent) {
     ...doc,
     metadata: {
       ...doc.metadata,
-      source: fileName,
+      source: fileName ?? doc.metadata.source,
       userId,
     },
   }));
@@ -69,8 +70,13 @@ export async function runIndexing(userId, fileBuffer, fileName, textContent) {
   });
 
   // Push to Qdrant collection
+  // await QdrantVectorStore.fromDocuments(userScopedDocs, embeddings, {
+  //   url: "http://localhost:6333",
+  //   collectionName: "rag-assignment",
+  // });
   await QdrantVectorStore.fromDocuments(userScopedDocs, embeddings, {
-    url: "http://localhost:6333",
+    url: process.env.QDRANT_URL,
+    apiKey: process.env.QDRANT_API_KEY || undefined,
     collectionName: "rag-assignment",
   });
 

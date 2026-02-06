@@ -8,7 +8,11 @@ import path from "path"; // ADD THIS IMPORT
  * @returns {Array} Array of document objects with metadata and preview
  */
 export async function getUserDocuments(userId) {
-  const qdrantClient = new QdrantClient({ url: "http://localhost:6333" });
+  const qdrantClient = new QdrantClient({
+    url: process.env.QDRANT_URL,
+    apiKey: process.env.QDRANT_API_KEY || undefined,
+  });
+  // const qdrantClient = new QdrantClient({ url: "http://localhost:6333" });
 
   const searchOptions = {
     filter: {

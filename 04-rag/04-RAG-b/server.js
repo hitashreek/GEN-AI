@@ -8,16 +8,14 @@ import { deleteUserDocument } from "./api/deleteDocument.js";
 
 const app = express();
 
-// use memory storage for file uploads
+// memory storage is GOOD for Vercel
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 app.use(cors());
 app.use(express.json());
 
-// ---------------------------
 // PDF / TXT Indexing endpoint
-// ---------------------------
 app.post("/api/indexing", upload.single("pdf"), async (req, res) => {
   const userId = req.body.userId;
   const textContent = req.body.textContent;
@@ -32,10 +30,8 @@ app.post("/api/indexing", upload.single("pdf"), async (req, res) => {
 
   try {
     if (req.file) {
-      const fileBuffer = req.file.buffer;
-      const fileName = req.file.originalname;
-      await runIndexing(userId, fileBuffer, fileName);
-    } else if (textContent) {
+      await runIndexing(userId, req.file.buffer, req.file.originalname);
+    } else {
       await runIndexing(userId, null, null, textContent);
     }
 
@@ -46,67 +42,47 @@ app.post("/api/indexing", upload.single("pdf"), async (req, res) => {
   }
 });
 
-// ---------------------------
-// Get user's documents
-// ---------------------------
 app.get("/api/documents/:userId", async (req, res) => {
-  const { userId } = req.params;
-
-  if (!userId) {
-    return res.status(400).json({ error: "userId is required" });
-  }
-
   try {
-    const documents = await getUserDocuments(userId);
+    const documents = await getUserDocuments(req.params.userId);
     res.json({ documents });
   } catch (err) {
-    console.error("Error fetching documents:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// ---------------------------
-// HyDE Chat Endpoint
-// ---------------------------
 app.post("/api/chatHyDE", async (req, res) => {
-  const { query, userId } = req.body;
-
-  if (!query) {
-    return res.status(400).json({ error: "Query is required" });
-  }
-
   try {
-    const result = await runChat(query, userId);
+    const result = await runChat(req.body.query, req.body.userId);
     res.json(result);
   } catch (err) {
-    console.error("Chat error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// ---------------------------
-// Delete document endpoint
-// ---------------------------
 app.delete("/api/documents/:userId/:source", async (req, res) => {
-  const { userId, source } = req.params;
-
-  if (!userId || !source) {
-    return res.status(400).json({ error: "userId and source are required" });
-  }
-
   try {
-    const result = await deleteUserDocument(userId, source);
+    const result = await deleteUserDocument(
+      req.params.userId,
+      req.params.source,
+    );
     res.json({ message: "Document deleted successfully", result });
   } catch (err) {
-    console.error("Error deleting document:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// ---------------------------
-// Start Server
-// ---------------------------
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Backend Server running on http://localhost:${PORT}`);
+// health check
+app.get("/api/health", (_, res) => {
+  res.json({ status: "ok" });
 });
+
+// LOCAL RUN ONLY
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
+
+export default app;

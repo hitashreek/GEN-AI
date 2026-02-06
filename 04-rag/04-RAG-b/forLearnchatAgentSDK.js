@@ -4,7 +4,10 @@ import { Agent, tool, run } from "@openai/agents";
 import { QdrantClient } from "@qdrant/js-client-rest";
 
 const openai = new OpenAI();
-const qdrant = new QdrantClient({ url: "http://localhost:6333" });
+const qdrant = new QdrantClient({
+  url: process.env.QDRANT_URL,
+  apiKey: process.env.QDRANT_API_KEY || undefined,
+});
 
 // Retrieval tool
 const retrieveFromPdf = tool({

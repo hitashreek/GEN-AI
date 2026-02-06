@@ -18,9 +18,14 @@ export async function runChat(userQuery, userId) {
   const vectorStore = await QdrantVectorStore.fromExistingCollection(
     embeddings,
     {
-      url: "http://localhost:6333",
+      url: process.env.QDRANT_URL,
+      apiKey: process.env.QDRANT_API_KEY || undefined,
       collectionName: "rag-assignment",
     },
+    // {
+    //   url: "http://localhost:6333",
+    //   collectionName: "rag-assignment",
+    // },
   );
 
   const searchOptions = {

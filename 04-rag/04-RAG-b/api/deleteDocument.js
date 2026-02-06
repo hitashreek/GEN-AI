@@ -8,7 +8,10 @@ import { QdrantClient } from "@qdrant/js-client-rest";
  * @returns {Object} Deletion result
  */
 export async function deleteUserDocument(userId, source) {
-  const qdrantClient = new QdrantClient({ url: "http://localhost:6333" });
+  const qdrantClient = new QdrantClient({
+    url: process.env.QDRANT_URL,
+    apiKey: process.env.QDRANT_API_KEY || undefined,
+  });
 
   // Delete all points matching both userId AND source
   const result = await qdrantClient.delete("rag-assignment", {
