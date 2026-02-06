@@ -15,15 +15,18 @@ export class RagService {
     return this.http.post(`${this.baseUrl}/indexing`, payload);
   }
 
-  chat(query: string) {
+  chat(query: string, userId: string) {
     return this.http.post<{
-      answer: string;
-      files: { fileName: string; hasText: boolean }[];
-    }>(`${this.baseUrl}/chatHyDE`, {
-      query,
-      userId: 'demo-user-123'
-    });
+      answer: string; files: { fileName: string; hasText: boolean }[];
+    }>(`${this.baseUrl}/chatHyDE`, { query, userId });
   }
 
+  getUserDocuments(userId: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}/documents/${userId}`);
+  }
+
+  deleteDocument(userId: string, source: string): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/documents/${userId}/${encodeURIComponent(source)}`);
+  }
 }
 

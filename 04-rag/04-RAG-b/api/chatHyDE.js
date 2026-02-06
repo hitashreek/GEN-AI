@@ -3,7 +3,7 @@ import { OpenAIEmbeddings, ChatOpenAI } from "@langchain/openai";
 import { QdrantVectorStore } from "@langchain/qdrant";
 import { HydeRetriever } from "@langchain/classic/retrievers/hyde";
 
-export async function runChat(userQuery, userId = "demo-user-123") {
+export async function runChat(userQuery, userId) {
   const llm = new ChatOpenAI({
     model: "gpt-4o-mini",
     temperature: 0,
@@ -39,7 +39,7 @@ export async function runChat(userQuery, userId = "demo-user-123") {
 
   const results = await retriever.invoke(userQuery);
   // console.log(`User ID: ${userId}`);
-  console.log(`Documents found: ${results.length}`);
+  // console.log(`Documents found: ${results.length}`);
   // console.log("HyDE answer:", results);
 
   if (results.length === 0) {
@@ -62,12 +62,7 @@ export async function runChat(userQuery, userId = "demo-user-123") {
     })
     .join("\n\n");
 
-  //   const hasText =
-  //     r.pageContent && r.pageContent.trim().length > 0
-  //       ? "Text available"
-  //       : "No text";
-  //   return `File: ${fileName} (${hasText}), Source: ${source}, Page: ${page}\n${r.pageContent}`;
-  // })
+  // - You may add widely known background information, but clearly separate it from sourced information.
 
   const finalAnswer = await llm.invoke([
     {
@@ -75,10 +70,18 @@ export async function runChat(userQuery, userId = "demo-user-123") {
       content: `
         You are a helpful assistant.
 
+        HTML STRUCTURE RULES:
+     - Use <b> for main section titles.
+     - Use <p class="pb-2"> for standard paragraphs.
+     - Use <ul class="list-disc"> and <li> for lists.
+     - Use <br> for line breaks between sections.
+     - DO NOT use Markdown symbols like ** or ###.
+     - DO NOT use <html>, <body>, or <head> tags; only provide the inner content.
+     
         Rules:
 - Use the provided information as the primary source.
-- You may add widely known background information, but clearly separate it from sourced information.
-- When information is sourced, include the page number in the format (page X).
+- NEVER use your own background knowledge, general facts, or outside information.
+- When information is sourced, must include the page number in the format (page X).
 - Do not invent page numbers.
 - If the question asks for an explanation, impact, reasons, or considerations, provide a detailed answer with multiple points.
 - If the question is a simple identity or definition question, respond in a single concise sentence.
@@ -103,6 +106,5 @@ export async function runChat(userQuery, userId = "demo-user-123") {
   // console.log("final ", finalAnswer.content);
   return {
     answer: finalAnswer.content,
-    files: [],
   };
 }

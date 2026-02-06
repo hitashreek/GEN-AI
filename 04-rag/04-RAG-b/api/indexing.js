@@ -1,47 +1,64 @@
 import "dotenv/config";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
-import { TextLoader } from "@langchain/classic/document_loaders/fs/text";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { QdrantVectorStore } from "@langchain/qdrant";
+import { Document } from "@langchain/core/documents";
 import fs from "fs";
 import path from "path";
 
 /**
- * Run indexing on a PDF or TXT file buffer
+ * Run indexing on a PDF file buffer or raw text content
  * @param {string} userId - The user ID to tag the documents
- * @param {Buffer} fileBuffer - The file contents (PDF/TXT) in memory
- * @param {string} fileName - The original filename (needed to detect extension)
+ * @param {Buffer} fileBuffer - The PDF file contents in memory
+ * @param {string} fileName - The original filename
+ * @param {string|null} textContent - Raw text content (optional)
  */
-export async function runIndexing(userId, fileBuffer, fileName) {
-  // console.log("**", userId, fileBuffer, fileName);
+export async function runIndexing(userId, fileBuffer, fileName, textContent) {
+  let docs;
+  let tempFilePath = null;
 
-  const ext = path.extname(fileName).toLowerCase();
+  if (fileBuffer && fileName) {
+    // Handle PDF file upload
+    const ext = path.extname(fileName).toLowerCase();
 
-  let loader;
+    if (ext === ".pdf") {
+      const tempDir = "/tmp";
+      const tempPath = path.join(tempDir, fileName);
+      // const safeFileName = `${userId}-${Date.now()}-${fileName}`;
+      // const tempPath = path.join(tempDir, safeFileName);
+      fs.mkdirSync(tempDir, { recursive: true });
+      fs.writeFileSync(tempPath, fileBuffer);
 
-  if (ext === ".pdf") {
-    // PDFLoader expects a path, so we need to write the buffer to a temp file
-    const tempPath = path.join("./uploads", fileName);
-    // Make sure uploads folder exists
-    fs.mkdirSync("./uploads", { recursive: true });
-    fs.writeFileSync(tempPath, fileBuffer);
-    loader = new PDFLoader(tempPath);
-  } else if (ext === ".txt") {
-    // TextLoader also expects a path
-    const tempPath = path.join("./uploads", fileName);
-    fs.mkdirSync("./uploads", { recursive: true });
-    fs.writeFileSync(tempPath, fileBuffer);
-    loader = new TextLoader(tempPath);
+      const loader = new PDFLoader(tempPath);
+
+      tempFilePath = tempPath;
+      docs = await loader.load();
+    } else {
+      throw new Error(
+        `Unsupported file type: ${ext}. Only PDF files are supported.`,
+      );
+    }
+  } else if (textContent) {
+    // Handle raw text content from textarea
+    const source = `text-input${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
+    docs = [
+      new Document({
+        pageContent: textContent,
+        metadata: {
+          source,
+        },
+      }),
+    ];
   } else {
-    throw new Error(`Unsupported file type: ${ext}`);
+    throw new Error("Either PDF file or text content must be provided");
   }
 
-  const docs = await loader.load();
-
+  // Add userId to all documents
   const userScopedDocs = docs.map((doc) => ({
     ...doc,
     metadata: {
       ...doc.metadata,
+      source: fileName,
       userId,
     },
   }));
@@ -52,21 +69,17 @@ export async function runIndexing(userId, fileBuffer, fileName) {
   });
 
   // Push to Qdrant collection
-  const vectorStore = await QdrantVectorStore.fromDocuments(
-    userScopedDocs,
-    embeddings,
-    {
-      url: "http://localhost:6333",
-      collectionName: "rag-assignment",
-    },
+  await QdrantVectorStore.fromDocuments(userScopedDocs, embeddings, {
+    url: "http://localhost:6333",
+    collectionName: "rag-assignment",
+  });
+
+  console.log(
+    `Indexing done. ${userScopedDocs.length} documents are now tagged with userId: ${userId}`,
   );
 
-  // console.log(
-  //   `Indexing done. ${userScopedDocs.length} documents are now tagged with userId: ${userId}`,
-  // );
-  //  return
-  // Optionally delete temp file to keep server clean
-  if (loader.filePath && fs.existsSync(loader.filePath)) {
-    fs.unlinkSync(loader.filePath);
+  // Clean up temp file if it exists
+  if (tempFilePath && fs.existsSync(tempFilePath)) {
+    fs.unlinkSync(tempFilePath);
   }
 }
