@@ -12,7 +12,7 @@
 
       <h3 class="text-md md:text-xl font-bold text-gray-900">Upload / Paste Documents</h3>
 
-      <textarea [(ngModel)]="textContent" placeholder="Paste text here..."
+      <textarea [(ngModel)]="textContent" (input)="onTextChange()" placeholder="Paste text here..."
         class="border border-gray-300 outline-none mx-1 p-2 rounded-lg text-sm md:text-base min-h-[60px] sm:min-h-[60px] md:min-h-[80px] lg:min-h-[100px] resize-y focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
 
       <div class="flex flex-col gap-2">
@@ -169,11 +169,11 @@
     <!-- Input Area -->
     <div class="border-t border-gray-200 pt-4 flex-shrink-0">
       <div class="flex gap-2">
-        <input #chatMsg placeholder="Ask a question..."
+        <input [(ngModel)]="chatInput" placeholder="Ask a question..."
           class="flex-1 border border-gray-300 p-3 rounded-lg text-sm md:text-base outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          [disabled]="isChatLoading" (keyup.enter)="!isChatLoading && sendQuery(chatMsg.value); chatMsg.value=''" />
-        <button (click)="sendQuery(chatMsg.value); chatMsg.value=''" [disabled]="isChatLoading"
-          [ngClass]="isChatLoading ? 'bg-green-300 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'"
+          [disabled]="isChatLoading" (keyup.enter)="chatInput.trim() && sendQuery(chatInput); chatInput=''" />
+        <button (click)="sendQuery(chatInput); chatInput=''" [disabled]="isChatLoading || !chatInput.trim()"
+          [ngClass]="(isChatLoading || !chatInput.trim()) ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'"
           class="text-white px-4 md:px-6 py-3 rounded-lg text-sm md:text-base font-medium flex-shrink-0 shadow-sm transition-colors">
           Send
         </button>

@@ -17,6 +17,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
   textContent: string = '';
   files: { pdf?: File } = {};
   chatMessages: ChatMessage[] = [];
+  chatInput: string = ''; // Track chat input state
 
   isUploading: boolean = false;
   isChatLoading: boolean = false;
@@ -26,6 +27,9 @@ export class AppComponent implements OnInit, AfterViewChecked {
   userDocuments: any[] = []; //  Store user's documents
   isLoadingDocuments: boolean = false;
 
+  private readonly MAX_FILE_SIZE = 4 * 1024 * 1024; // 4MB
+  private readonly MAX_TEXT_SIZE = 30 * 1024; // 30KB 
+
   constructor(private ragService: RagService) {
     this.userId = this.getOrCreateUserId();
   }
@@ -34,7 +38,6 @@ export class AppComponent implements OnInit, AfterViewChecked {
   ngOnInit() {
     this.loadUserDocuments();
   }
-
 
   // This lifecycle hook fires every time the UI changes
   ngAfterViewChecked() {
@@ -79,12 +82,68 @@ export class AppComponent implements OnInit, AfterViewChecked {
     return !!(this.files.pdf || this.textContent.trim());
   }
 
+  private formatFileSize(bytes: number): string {
+    if (bytes < 1024) return bytes + 'B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + 'KB';
+    return (bytes / 1024 / 1024).toFixed(2) + 'MB';
+  }
+
   onFileChange(event: Event, type: 'pdf') {
     const file = (event.target as HTMLInputElement).files?.[0];
-    if (file) this.files[type] = file;
+
+    if (file) {
+      if (file.size > this.MAX_FILE_SIZE) {
+        this.uploadMessage = {
+          type: 'error',
+          text: `File too large. Maximum size is 4MB. Your file is ${this.formatFileSize(file.size)}`
+        };
+        (event.target as HTMLInputElement).value = '';
+        setTimeout(() => this.uploadMessage = null, 5000);
+        return;
+      }
+      this.files[type] = file;
+    }
+  }
+
+  // Monitor text input and warn user in real-time
+  onTextChange() {
+    if (this.textContent) {
+      const textSizeInBytes = new Blob([this.textContent]).size;
+      const percentUsed = (textSizeInBytes / this.MAX_TEXT_SIZE) * 100;
+
+      if (percentUsed > 90) {
+        console.warn(`z Text is ${percentUsed.toFixed(0)}% of limit (${this.formatFileSize(textSizeInBytes)})`);
+      }
+    }
   }
 
   submit() {
+    // Validate at least one content exists
+    if (!this.files.pdf && !this.textContent.trim()) {
+      this.uploadMessage = {
+        type: 'error',
+        text: 'Please upload a file or paste text content.'
+      };
+      setTimeout(() => this.uploadMessage = null, 5000);
+      return;
+    }
+
+    // Validate text content size
+    if (this.textContent) {
+      const textSizeInBytes = new Blob([this.textContent]).size;
+
+      if (textSizeInBytes > this.MAX_TEXT_SIZE) {
+        const textSizeFormatted = this.formatFileSize(textSizeInBytes);
+        const maxSizeFormatted = this.formatFileSize(this.MAX_TEXT_SIZE);
+        this.uploadMessage = {
+          type: 'error',
+          text: `Text is too large (${textSizeFormatted}). Maximum is ${maxSizeFormatted}. Please paste less content.`
+        };
+        setTimeout(() => this.uploadMessage = null, 5000);
+        return;
+      }
+    }
+
     const formData = new FormData();
     if (this.files.pdf) formData.append('pdf', this.files.pdf);
     if (this.textContent) formData.append('textContent', this.textContent);
@@ -113,9 +172,18 @@ export class AppComponent implements OnInit, AfterViewChecked {
       },
       error: (err: any) => {
         console.error(err);
+
+        // Better error messages
+        let errorText = 'Failed to upload document. Please try again.';
+        if (err.status === 500) {
+          errorText = 'Server error: Content might be too large. Please reduce the size and try again.';
+        } else if (err.status === 413) {
+          errorText = 'Content too large for server. Please reduce the file/text size.';
+        }
+
         this.uploadMessage = {
           type: 'error',
-          text: 'Failed to upload document. Please try again.'
+          text: errorText
         };
         this.isUploading = false;
       }
@@ -135,9 +203,15 @@ export class AppComponent implements OnInit, AfterViewChecked {
       },
       error: (err: any) => {
         console.error(err);
+
+        let errorMessage = 'Sorry, there was an error processing your request.';
+        if (err.status === 500) {
+          errorMessage = 'Server error: Too much content to process. Please ask more specific questions.';
+        }
+
         this.chatMessages.push({
           role: 'system',
-          content: 'Sorry, there was an error processing your request.'
+          content: errorMessage
         });
         this.isChatLoading = false;
       }
