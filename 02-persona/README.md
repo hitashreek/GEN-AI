@@ -10,9 +10,3 @@ It lets you chat with AI personas that respond in unique styles. Behind the scen
 - Get smarter responses because of automatic query rewriting.
 - Have context-aware conversations that remember the flow, making interactions feel natural.
 - Try it out right away on the live demo: [https://02persona-chat-f.vercel.app/](https://02persona-chat-f.vercel.app/).
-
-cd backend
-Run `npm install openai dotenv cors`
-Run `node hitesh_persona.js`
-Run `node piyush_persona.js`
-Specifically for particular chat
