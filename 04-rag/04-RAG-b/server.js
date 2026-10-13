@@ -15,6 +15,10 @@ const upload = multer({ storage });
 app.use(cors());
 app.use(express.json());
 
+app.get("/", (req, res) => {
+  res.send("RAG API is running!");
+});
+
 // PDF / TXT Indexing endpoint
 app.post("/api/indexing", upload.single("pdf"), async (req, res) => {
   const userId = req.body.userId;

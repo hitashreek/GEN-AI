@@ -12,6 +12,7 @@ export async function deleteUserDocument(userId, source) {
     url: process.env.QDRANT_URL,
     apiKey: process.env.QDRANT_API_KEY || undefined,
   });
+  // const qdrantClient = new QdrantClient({ url: "http://localhost:6333" });
 
   // Delete all points matching both userId AND source
   const result = await qdrantClient.delete("rag-assignment", {
